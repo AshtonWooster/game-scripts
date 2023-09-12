@@ -1,11 +1,13 @@
 --Server Main Menu Controller
 --Ashton
---9.11.23
+--9.11.23 -- 9.12.23
 
 --Objects--
 local repStorage = game:GetService("ReplicatedStorage")
 local events = repStorage:WaitForChild("Events")
 local menuEvent = events:WaitForChild("Menu")
+local menuPositions = workspace:WaitForChild("MenuPositions")
+local lobbySpawnPositions = menuPositions:WaitForChild("SpawnLocations")
 
 --Freeze Character--
 local function freezeChar(character)
@@ -26,10 +28,17 @@ local function unfreezeChar(character)
 end
 
 --Spawn Character--
-local function placeChar(character)
-	local toLocation = workspace:WaitForChild("PlaceholderSpawn").Position
+local function placeChar(character, pos)
+	local toLocation = pos
 
 	character:PivotTo(CFrame.new(toLocation))
+end
+
+--Choose Random Spawn--
+local function chooseSpawn()
+	local spawnPositions = lobbySpawnPositions:GetChildren()
+	
+	return spawnPositions[math.random(1, #spawnPositions)].Position
 end
 
 --Hold Player Until loaded--
@@ -45,7 +54,7 @@ game.Players.PlayerAdded:Connect(function(player)
 			freezeChar(character)
 		elseif gameState.Value == "Lobby" then
 			player.CharacterAppearanceLoaded:Wait()
-			placeChar(character)
+			placeChar(character, chooseSpawn())
 		end
 	end)
 end)
@@ -56,7 +65,7 @@ menuEvent.OnServerEvent:Connect(function(player)
 	local character = player.Character
 	assert(character, player.Name..": suspicious activity.")
 	
-	placeChar(character)
+	placeChar(character, chooseSpawn())
 	player.GameState.Value = "Lobby"
 	unfreezeChar(character)
 end)

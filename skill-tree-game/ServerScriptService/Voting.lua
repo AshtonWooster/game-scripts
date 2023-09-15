@@ -1,31 +1,61 @@
 --Server Voting Script
 --Ashton
---9.13.23
+--9.13.23 -- 9.14.23
 
 --Objects--
 local repStorage = game:GetService("ReplicatedStorage")
 local events = repStorage:WaitForChild("Events")
-local maps = repStorage:WaitForChild("Maps"):GetChildren()
+local votingEvent = events:WaitForChild("Voting")
+local maps = repStorage:WaitForChild("Maps")
+local votingFolder = repStorage:WaitForChild("Voting")
+local chosenMaps = votingFolder:WaitForChild("Maps")
+local chosenModes = votingFolder:WaitForChild("Modes")
+local votingTime = votingFolder:WaitForChild("Time")
+local votingValue = votingFolder:WaitForChild("IsVoting")
 
 --Variables--
 local isVoting = false
 local waiting = {}
+local currentMaps = {}
+
 
 --Constants--
 local MIN_PLAYERS = 2
+local MAX_MAPS    = 3
+local VOTING_TIME = 20
+
+--Set Up Map Object Values--
+for _, objectVal in pairs(chosenMaps:GetChildren()) do
+	currentMaps[tonumber(objectVal.Name)] = objectVal
+end
+
 
 --Stop Voting--
 local function stopVoting()
 	isVoting = false
 	
-	print("Stop Voting")
+	for _, objectVal in currentMaps do
+		objectVal.Value = nil
+	end
+	
+	votingValue.Value = false
+	votingTime.Value = 0
 end
 
 --Start Voting--
 local function startVoting()
 	isVoting = true
 	
-	print("Start Voting")
+	--Choose Maps
+	local availableMaps = maps:GetChildren()
+	for i=1, MAX_MAPS do
+		local chosenMap = math.random(1, #availableMaps)
+		currentMaps[i].Value = chosenMap
+		table.remove(availableMaps, chosenMap)
+	end
+	
+	votingValue.Value = true
+	votingTime.Value = VOTING_TIME
 end
 
 

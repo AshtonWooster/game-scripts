@@ -1,15 +1,16 @@
 --Music Controller
 --Ashton
---3.7.23
-
---Modules--
-local musicPacket = require(script.Parent:WaitForChild("Classes"):WaitForChild("MusicPacket"))
+--3.7.23 -- 9.14.23
 
 --Objects--
 local repStorage = game:GetService("ReplicatedStorage")
 local events = repStorage:WaitForChild("Events")
 local music = events:WaitForChild("Music")
 local musicFolder = workspace:WaitForChild("Music")
+local clientMods = repStorage:WaitForChild("ClientModules")
+
+--Modules--
+local musicPacket = require(clientMods:WaitForChild("MusicPacket"))
 
 --Variables--
 local songs = {}

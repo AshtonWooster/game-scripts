@@ -1,9 +1,6 @@
 --Client Main Menu Controller
 --Ashton
---9.11.23 -- 9.12.23
-
---Modules--
-local cameraManip = require(script.Parent:WaitForChild("Classes"):WaitForChild("Camera"))
+--9.11.23 -- 9.14.23
 
 --Objects--
 local player = game.Players.LocalPlayer
@@ -17,6 +14,10 @@ local menuEvent = events:WaitForChild("Menu")
 local menuPositions = workspace:WaitForChild("MenuPositions")
 local cameraStartPositions = menuPositions:WaitForChild("StartPos"):GetChildren()
 local cameraLookPositions = menuPositions:WaitForChild("LookPos")
+local clientMods = repStorage:WaitForChild("ClientModules")
+
+--Modules--
+local cameraManip = require(clientMods:WaitForChild("Camera"))
 
 --Variables--
 local cameraPoints = {}

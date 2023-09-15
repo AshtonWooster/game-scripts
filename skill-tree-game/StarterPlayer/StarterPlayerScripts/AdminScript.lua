@@ -1,9 +1,6 @@
 --Client Admin Script
 --Ashton
---9.13.22 -- 9.10.23
-
---Modules--
-local mouseController = require(script.Parent:WaitForChild("Classes"):WaitForChild("Mouse"))
+--9.13.22 -- 9.14.23
 
 --Objects--
 local repStorage = game:GetService("ReplicatedStorage")
@@ -12,10 +9,14 @@ local events = repStorage:WaitForChild("Events")
 local adminEvent = events:WaitForChild("Admin")
 local userIS = game:GetService("UserInputService")
 local player = game.Players.LocalPlayer
+local clientMods = repStorage:WaitForChild("ClientModules")
 local gui, adminFolder, adminBtn, adminMenu, nameBox, commandBar, adminMove, boxes
 local pBox, execute, cancel, helpMenu, adminClose, helpClose, helpMove, helpName, posSelect
 local currentCommand, currentPos = "", nil
 local getPos, newMove, discon
+
+--Modules--
+local mouseController = require(clientMods:WaitForChild("Mouse"))
 
 --Constants--
 local MENU_CENTER = UDim2.fromScale(0.564, 0.333)

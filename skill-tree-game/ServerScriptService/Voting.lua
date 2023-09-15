@@ -1,6 +1,6 @@
 --Server Voting Script
 --Ashton
---9.13.23 -- 9.14.23
+--9.13.23 -- 9.15.23
 
 --Objects--
 local repStorage = game:GetService("ReplicatedStorage")
@@ -50,7 +50,7 @@ local function startVoting()
 	local availableMaps = maps:GetChildren()
 	for i=1, MAX_MAPS do
 		local chosenMap = math.random(1, #availableMaps)
-		currentMaps[i].Value = chosenMap
+		currentMaps[i].Value = availableMaps[chosenMap]
 		table.remove(availableMaps, chosenMap)
 	end
 	

@@ -1,6 +1,6 @@
 --Client Voting Script
 --Ashton
---9.14.23
+--9.14.23 -- 9.15.23
 
 --Objects--
 local userIS = game:GetService("UserInputService")
@@ -21,7 +21,9 @@ local mapNamesFolder = votingMenu:WaitForChild("MapNames")
 local mapImagesFolder = votingMenu:WaitForChild("MapImages")
 local mapTimer = votingMenu:WaitForChild("Timer")
 local votingMove = votingMenu:WaitForChild("Move")
+local votingClose = votingMenu:WaitForChild("Close")
 local clientMods = repStorage:WaitForChild("ClientModules")
+local votingOpen = gui:WaitForChild("Voting"):WaitForChild("Open")
 
 --Modules--
 local mouseController = require(clientMods:WaitForChild("Mouse"))
@@ -64,12 +66,14 @@ end
 local function openVoting()
 	showMaps()
 	votingMenu.Visible = true
+	votingOpen.Visible = true
 end
 
 --Close Voting--
 local function closeVoting()
 	hideMaps()
 	votingMenu.Visible = false
+	votingOpen.Visible = false
 end
 
 --Open/Close Voting--
@@ -88,12 +92,21 @@ if gameState.Value == "Lobby" and votingValue.Value then
 	openVoting()
 end
 
+--Open / Close voting when game state changes--
+gameState.Changed:Connect(function(value)
+	if gameState.Value == "Lobby" and votingValue.Value then
+		openVoting()
+	elseif votingValue.Value then
+		closeVoting()
+	end
+end)
+
 --Update Timer--
 votingTime.Changed:Connect(function(value)
 	mapTimer.Text = value
 end)
 
---Connect AdminMove--
+--Connect VotingMove--
 votingMove.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		local newMove
@@ -115,4 +128,16 @@ votingMove.InputBegan:Connect(function(input)
 			end
 		end)
 	end
+end)
+
+--Connect VotingClose--
+votingClose.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		votingMenu.Visible = false
+	end
+end)
+
+--Reopen Voting Menu if closed by user--
+votingOpen.Activated:Connect(function()
+	votingMenu.Visible = not votingMenu.Visible
 end)

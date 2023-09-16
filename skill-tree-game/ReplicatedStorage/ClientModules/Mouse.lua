@@ -1,10 +1,11 @@
 --Client Mouse Controller
 --Ashton
---3.31.23
+--3.31.23 -- 9.15.23
 
 --Objects--
 local mouseController = {}
 local userIS = game:GetService("UserInputService")
+local guiService = game:GetService("GuiService")
 local repStorage = game:GetService("ReplicatedStorage")
 local imageFolder = repStorage:WaitForChild("Images")
 local componentsFolder = repStorage:WaitForChild("GUIComponents")
@@ -54,7 +55,7 @@ function mouseController.click(color)
 	local clickEffect = effects["ClickEffect"]:Clone()
 	clickEffect.ImageColor3 = color
 	clickEffect.Parent = gui
-	clickEffect.Position = UDim2.fromOffset(mouse.X, mouse.Y)
+	clickEffect.Position = UDim2.fromOffset(mouse.X, mouse.Y + guiService:GetGuiInset().Y)
 	
 	coroutine.wrap(function()
 		local clickTween = tweenService:Create(clickEffect, clickInfo, clickProp)

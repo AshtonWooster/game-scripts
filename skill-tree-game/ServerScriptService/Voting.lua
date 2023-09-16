@@ -87,6 +87,10 @@ local function addWait(player)
 	checkVoting()
 end
 
+--Collect Votes from clients--
+votingEvent.OnServerEvent:Connect(function(player, votes)
+	print(votes)
+end)
 
 --Keep track of current available players--
 game.Players.PlayerAdded:Connect(function(player)

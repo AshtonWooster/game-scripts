@@ -28,9 +28,29 @@ local votingOpen = gui:WaitForChild("Voting"):WaitForChild("Open")
 --Modules--
 local mouseController = require(clientMods:WaitForChild("Mouse"))
 
+--Variables--
+local currentVotes = {
+	Map = 0,
+	Mode = 0,
+}
+local currentBorders = {
+	Map = nil,
+	Mode = nil,
+}
+
 --Constants--
 local DEFAULT_MAP_IMAGE = "rbxassetid://11117563862"
 local DEFAULT_MAP_NAME  = "Name"
+local HIGHLIGHT_BORDER = Color3.fromRGB(40, 240, 200)
+local DEFAULT_BORDERS = {
+	Map = mapImagesFolder:WaitForChild("1").BorderColor3,
+	Mode = modesFolder:WaitForChild("1").BorderColor3,
+}
+
+--Change Border color--
+local function changeBorder(obj, color)
+	obj.BorderColor3 = color
+end
 
 --Show images and names for maps--
 local function showMaps()
@@ -46,6 +66,14 @@ end
 
 --Reset images and names for maps--
 local function hideMaps()
+	currentVotes["Map"] = 0
+	currentVotes["Mode"] = 0
+	
+	changeBorder(currentBorders["Map"], DEFAULT_BORDERS["Map"])
+	changeBorder(currentBorders["Mode"], DEFAULT_BORDERS["Mode"])
+	currentBorders["Map"] = nil
+	currentBorders["Mode"] = nil
+	
 	for _, image in pairs(mapImagesFolder:GetChildren()) do
 		image.Image = DEFAULT_MAP_IMAGE
 	end
@@ -57,9 +85,7 @@ end
 
 --Submit votes--
 local function submitVotes()
-	local votes = {}
-	
-	votingEvent:FireServer(votes)
+	votingEvent:FireServer(currentVotes)
 end
 
 --Open Voting--
@@ -76,6 +102,21 @@ local function closeVoting()
 	votingOpen.Visible = false
 end
 
+--Vote--
+local function vote(item, num, obj)
+	if votingValue.Value and votingTime.Value > 0 then
+		if currentBorders[item] then
+			changeBorder(currentBorders[item], DEFAULT_BORDERS[item])
+		end
+		currentBorders[item] = obj
+		changeBorder(obj, HIGHLIGHT_BORDER)
+		
+		currentVotes[item] = num
+		submitVotes()
+		mouseController.click()
+	end
+end
+
 --Open/Close Voting--
 votingValue.Changed:Connect(function(value)
 	if gameState.Value == "Lobby" then
@@ -87,6 +128,27 @@ votingValue.Changed:Connect(function(value)
 	end
 end)
 
+--Connect mapImage buttons--
+for _, button in pairs(mapImagesFolder:GetChildren()) do
+	local mapNum = tonumber(button.Name)
+	
+	button.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 and mapNum ~= currentVotes["Map"] then
+			vote("Map", mapNum, button)
+		end
+	end)
+end
+
+--Connect mode Buttons--
+for _, button in pairs(modesFolder:GetChildren()) do
+	local modeNum = tonumber(button.Name)
+	
+	button.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 and modeNum ~= currentVotes["Mode"] then
+			vote("Mode", modeNum, button)
+		end
+	end)
+end
 --Open Voting if Voting and in lobby--
 if gameState.Value == "Lobby" and votingValue.Value then
 	openVoting()
@@ -134,10 +196,12 @@ end)
 votingClose.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		votingMenu.Visible = false
+		mouseController.click()
 	end
 end)
 
 --Reopen Voting Menu if closed by user--
 votingOpen.Activated:Connect(function()
 	votingMenu.Visible = not votingMenu.Visible
+	mouseController.click()
 end)

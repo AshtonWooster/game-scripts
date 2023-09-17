@@ -1,6 +1,6 @@
 --Value Manipulators Module Server
 --Ashton
---10.1.22 -- 2.14.23
+--10.1.22 -- 9.16.23
 
 --Modules--
 local valueManip = {}
@@ -26,6 +26,17 @@ function valueManip.MapChildrenToHash(obj)
 	end
 	
 	return newArray
+end
+
+--Find Index of list given key and value--
+function valueManip.FindList(list, key, value)
+	for i, obj in pairs(list) do
+		if obj[key] == value then 
+			return i
+		end
+	end
+	
+	return nil
 end
 
 --Map Children Values to Hash--

@@ -1,6 +1,9 @@
 --Server Voting Script
 --Ashton
---9.13.23 -- 9.15.23
+--9.13.23 -- 9.16.23
+
+--Modules--
+local valueManip = require(script.Parent:WaitForChild("ValueManip"))
 
 --Objects--
 local repStorage = game:GetService("ReplicatedStorage")
@@ -12,28 +15,68 @@ local chosenMaps = votingFolder:WaitForChild("Maps")
 local chosenModes = votingFolder:WaitForChild("Modes")
 local votingTime = votingFolder:WaitForChild("Time")
 local votingValue = votingFolder:WaitForChild("IsVoting")
+local wonMapValue = votingFolder:WaitForChild("Map")
+local wonModeValue = votingFolder:WaitForChild("Mode")
 
 --Variables--
-local isVoting = false
 local waiting = {}
 local currentMaps = {}
-
+local playerVotes = {}
 
 --Constants--
 local MIN_PLAYERS = 2
 local MAX_MAPS    = 3
 local VOTING_TIME = 20
 
+--Start Timer--
+local function startTimer()
+	while votingTime.Value > 0 and votingValue.Value do
+		votingTime.Value = votingTime.Value - 1
+		wait(1)
+	end
+end
+
 --Set Up Map Object Values--
 for _, objectVal in pairs(chosenMaps:GetChildren()) do
 	currentMaps[tonumber(objectVal.Name)] = objectVal
 end
 
+--Calculate Winning Votes--
+local function calculateWinners()
+	local winningMap = 1
+	local winningMode = 1
+	local totaledVotes = {
+		Map = {0,0,0},
+		Mode = {0,0,0,0},
+	}
+	
+	for _, vote in pairs(playerVotes) do
+		if playerVotes["Map"] then
+			totaledVotes["Map"][playerVotes["Map"]] = totaledVotes["Map"][playerVotes["Map"]] + 1
+		end
+		if playerVotes["Mode"] then
+			--totaledVotes["Mode"][playerVotes["Mode"]] = totaledVotes["Mode"][playerVotes["Mode"]] + 1
+		end
+	end
+	
+	for i, vote in pairs(totaledVotes["Map"]) do
+		if vote > totaledVotes["Map"][winningMap] then
+			winningMap = i
+		end
+	end
+	
+	for i, vote in pairs(totaledVotes["Mode"]) do
+		if vote > totaledVotes["Mode"][winningMode] then
+			winningMode = i
+		end
+	end
+	
+	wonMapValue.Value = currentMaps[winningMap].Value
+	--wonModeValue.Value = currentModes[winningMode].Value
+end
 
 --Stop Voting--
 local function stopVoting()
-	isVoting = false
-	
 	for _, objectVal in currentMaps do
 		objectVal.Value = nil
 	end
@@ -43,9 +86,7 @@ local function stopVoting()
 end
 
 --Start Voting--
-local function startVoting()
-	isVoting = true
-	
+local function startVoting()	
 	--Choose Maps
 	local availableMaps = maps:GetChildren()
 	for i=1, MAX_MAPS do
@@ -56,18 +97,24 @@ local function startVoting()
 	
 	votingValue.Value = true
 	votingTime.Value = VOTING_TIME
+	startTimer()
 end
 
+--End Voting When time hits 0--
+votingTime.Changed:Connect(function(value)
+	if value == 0 and votingValue.Value then
+		calculateWinners()
+	end
+end)
 
 --Check Voting Amount--
 local function checkVoting()
-	if isVoting and #waiting < MIN_PLAYERS then
+	if votingValue.Value and #waiting < MIN_PLAYERS then
 		stopVoting()
-	elseif not isVoting and #waiting >= MIN_PLAYERS then
+	elseif not votingValue.Value and #waiting >= MIN_PLAYERS then
 		startVoting()
 	end
 end
-
 
 --Remove From list--
 local function removeWait(player)
@@ -87,9 +134,26 @@ local function addWait(player)
 	checkVoting()
 end
 
+--Submit Vote--
+local function submitVote(player, votes)
+	local listIndex = valueManip.FindList(playerVotes, "Player", player.UserId)
+	local mapVoteNum = votes["Map"]
+	
+	if not listIndex then 
+		table.insert(playerVotes, {
+			Player = player.UserId,
+			Map = mapVoteNum,
+		})
+	else
+		playerVotes[listIndex]["Map"] = mapVoteNum
+	end 
+end
+
 --Collect Votes from clients--
 votingEvent.OnServerEvent:Connect(function(player, votes)
-	print(votes)
+	if votingTime.Value > 0 and votingValue.Value then
+		submitVote(player, votes)
+	end
 end)
 
 --Keep track of current available players--

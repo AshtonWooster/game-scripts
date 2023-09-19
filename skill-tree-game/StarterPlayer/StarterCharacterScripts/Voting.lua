@@ -1,6 +1,6 @@
 --Client Voting Script
 --Ashton
---9.14.23 -- 9.15.23
+--9.14.23 -- 9.18.23
 
 --Objects--
 local userIS = game:GetService("UserInputService")
@@ -9,13 +9,16 @@ local repStorage = game:GetService("ReplicatedStorage")
 local events = repStorage:WaitForChild("Events")
 local votingEvent = events:WaitForChild("Voting")
 local votingFolder = repStorage:WaitForChild("Voting")
+local resultMap = votingFolder:WaitForChild("Map")
+local resultMode = votingFolder:WaitForChild("Mode")
 local votingTime = votingFolder:WaitForChild("Time")
 local votingValue = votingFolder:WaitForChild("IsVoting")
 local chosenMaps = votingFolder:WaitForChild("Maps")
 local chosenModes = votingFolder:WaitForChild("Modes")
 local gameState = player:WaitForChild("GameState")
 local gui = player:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
-local votingMenu = gui:WaitForChild("Voting"):WaitForChild("VotingMenu")
+local guiVotingFolder = gui:WaitForChild("Voting")
+local votingMenu = guiVotingFolder:WaitForChild("VotingMenu")
 local modesFolder = votingMenu:WaitForChild("Modes")
 local mapNamesFolder = votingMenu:WaitForChild("MapNames")
 local mapImagesFolder = votingMenu:WaitForChild("MapImages")
@@ -23,7 +26,13 @@ local mapTimer = votingMenu:WaitForChild("Timer")
 local votingMove = votingMenu:WaitForChild("Move")
 local votingClose = votingMenu:WaitForChild("Close")
 local clientMods = repStorage:WaitForChild("ClientModules")
-local votingOpen = gui:WaitForChild("Voting"):WaitForChild("Open")
+local votingOpen = guiVotingFolder:WaitForChild("Open")
+local resultsMenu = guiVotingFolder:WaitForChild("ResultsMenu")
+local modeBackground = resultsMenu:WaitForChild("ModeBackground")
+local resultsMapImage = resultsMenu:WaitForChild("MapImage")
+local resultsClose = resultsMenu:WaitForChild("Close")
+local resultsModeName = resultsMenu:WaitForChild("ModeName")
+local resultsMapName = resultsMenu:WaitForChild("MapName")
 
 --Modules--
 local mouseController = require(clientMods:WaitForChild("Mouse"))
@@ -47,6 +56,17 @@ local DEFAULT_BORDERS = {
 	Mode = modesFolder:WaitForChild("1").BorderColor3,
 }
 
+--Display Results--
+local function displayResults()
+	resultsMenu.Visible = true
+	local mapConfig = resultMap.Value.Config
+	
+	resultsMapName.Text = mapConfig:WaitForChild("Name").Value
+	resultsMapImage.Image = mapConfig.Image.Value
+	
+	--resultsMode
+end
+
 --Change Border color--
 local function changeBorder(obj, color)
 	obj.BorderColor3 = color
@@ -69,10 +89,14 @@ local function hideMaps()
 	currentVotes["Map"] = 0
 	currentVotes["Mode"] = 0
 	
-	changeBorder(currentBorders["Map"], DEFAULT_BORDERS["Map"])
-	changeBorder(currentBorders["Mode"], DEFAULT_BORDERS["Mode"])
-	currentBorders["Map"] = nil
-	currentBorders["Mode"] = nil
+	if currentBorders["Map"] then
+		changeBorder(currentBorders["Map"], DEFAULT_BORDERS["Map"])
+		currentBorders["Map"] = nil
+	end
+	if currentBorders["Mode"] then
+		changeBorder(currentBorders["Mode"], DEFAULT_BORDERS["Mode"])
+		currentBorders["Mode"] = nil
+	end
 	
 	for _, image in pairs(mapImagesFolder:GetChildren()) do
 		image.Image = DEFAULT_MAP_IMAGE
@@ -160,6 +184,7 @@ gameState.Changed:Connect(function(value)
 		openVoting()
 	elseif votingValue.Value then
 		closeVoting()
+		resultsMenu.Visible = false
 	end
 end)
 
@@ -200,8 +225,23 @@ votingClose.InputEnded:Connect(function(input)
 	end
 end)
 
+--Connect ResultsClose--
+resultsClose.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		resultsMenu.Visible = false
+		mouseController.click()
+	end
+end)
+
 --Reopen Voting Menu if closed by user--
 votingOpen.Activated:Connect(function()
 	votingMenu.Visible = not votingMenu.Visible
 	mouseController.click()
+end)
+
+--End Voting when results are given--
+resultMap.Changed:Connect(function(value)
+	if value then
+		displayResults()
+	end
 end)

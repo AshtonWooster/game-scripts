@@ -1,9 +1,15 @@
 --Server Voting Script
 --Ashton
---9.13.23 -- 9.16.23
+--9.13.23 -- 9.19.23
 
 --Modules--
 local valueManip = require(script.Parent:WaitForChild("ValueManip"))
+local classesFolder = script.Parent:WaitForChild("Classes")
+local classes = {}
+for _, obj in pairs(classesFolder:GetChildren()) do
+	classes[obj.Name] = require(obj)
+end
+
 
 --Objects--
 local repStorage = game:GetService("ReplicatedStorage")
@@ -24,21 +30,24 @@ local currentMaps = {}
 local playerVotes = {}
 
 --Constants--
-local MIN_PLAYERS = 2
-local MAX_MAPS    = 3
-local VOTING_TIME = 20
-
---Start Timer--
-local function startTimer()
-	while votingTime.Value > 0 and votingValue.Value do
-		votingTime.Value = votingTime.Value - 1
-		wait(1)
-	end
-end
+local MIN_PLAYERS  = 2
+local MAX_MAPS     = 3
+local VOTING_TIME  = 20
+local RESULTS_TIME = 5
 
 --Set Up Map Object Values--
 for _, objectVal in pairs(chosenMaps:GetChildren()) do
 	currentMaps[tonumber(objectVal.Name)] = objectVal
+end
+
+--Send Message--
+local function sendMessage(player, message)
+	classes["TextPacket"].SendTo(player, message)
+end
+
+--Send all Message--
+local function sendAllMessage(message)
+	classes["TextPacket"].SendToAll(message)
 end
 
 --Calculate Winning Votes--
@@ -51,11 +60,11 @@ local function calculateWinners()
 	}
 	
 	for _, vote in pairs(playerVotes) do
-		if playerVotes["Map"] then
-			totaledVotes["Map"][playerVotes["Map"]] = totaledVotes["Map"][playerVotes["Map"]] + 1
+		if vote["Map"] then
+			totaledVotes["Map"][vote["Map"]] = totaledVotes["Map"][vote["Map"]] + 1
 		end
-		if playerVotes["Mode"] then
-			--totaledVotes["Mode"][playerVotes["Mode"]] = totaledVotes["Mode"][playerVotes["Mode"]] + 1
+		if vote["Mode"] then
+			--totaledVotes["Mode"][vote["Mode"]] = totaledVotes["Mode"][vote["Mode"]] + 1
 		end
 	end
 	
@@ -71,8 +80,34 @@ local function calculateWinners()
 		end
 	end
 	
-	wonMapValue.Value = currentMaps[winningMap].Value
-	--wonModeValue.Value = currentModes[winningMode].Value
+	local finalChosenMap = currentMaps[winningMap].Value
+	wonMapValue.Value = finalChosenMap
+	sendAllMessage("Chosen Map: "..finalChosenMap.Name)
+	
+	--local finalChosenMode = currentModes[winningMode].Value
+	--wonModeValue.Value = finalChosenMode
+	--sendAllMessage("Chosen Mode: "..finalChosenMode.Name)
+end
+
+--Start Timer--
+local function startTimer()
+	while votingTime.Value > 0 and votingValue.Value do
+		votingTime.Value = votingTime.Value - 1
+		wait(1)
+	end
+	
+	--End Voting when timer hits 0--
+	if votingValue.Value then
+		calculateWinners()
+		votingValue.Value = false
+		
+		wait(RESULTS_TIME)
+		
+		--If # of players is still above minimum begin game
+		if wonMapValue.Value then
+			print("Start game")
+		end
+	end
 end
 
 --Stop Voting--
@@ -83,6 +118,9 @@ local function stopVoting()
 	
 	votingValue.Value = false
 	votingTime.Value = 0
+	wonMapValue.Value = nil
+	wonModeValue.Value = nil
+	playerVotes = {}
 end
 
 --Start Voting--
@@ -99,13 +137,6 @@ local function startVoting()
 	votingTime.Value = VOTING_TIME
 	startTimer()
 end
-
---End Voting When time hits 0--
-votingTime.Changed:Connect(function(value)
-	if value == 0 and votingValue.Value then
-		calculateWinners()
-	end
-end)
 
 --Check Voting Amount--
 local function checkVoting()

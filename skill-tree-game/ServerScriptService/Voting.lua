@@ -1,6 +1,6 @@
 --Server Voting Script
 --Ashton
---9.13.23 -- 9.19.23
+--9.13.23 -- 9.20.23
 
 --Modules--
 local valueManip = require(script.Parent:WaitForChild("ValueManip"))
@@ -33,16 +33,10 @@ local playerVotes = {}
 local MIN_PLAYERS  = 2
 local MAX_MAPS     = 3
 local VOTING_TIME  = 20
-local RESULTS_TIME = 5
 
 --Set Up Map Object Values--
 for _, objectVal in pairs(chosenMaps:GetChildren()) do
 	currentMaps[tonumber(objectVal.Name)] = objectVal
-end
-
---Send Message--
-local function sendMessage(player, message)
-	classes["TextPacket"].SendTo(player, message)
 end
 
 --Send all Message--
@@ -100,13 +94,6 @@ local function startTimer()
 	if votingValue.Value then
 		calculateWinners()
 		votingValue.Value = false
-		
-		wait(RESULTS_TIME)
-		
-		--If # of players is still above minimum begin game
-		if wonMapValue.Value then
-			print("Start game")
-		end
 	end
 end
 

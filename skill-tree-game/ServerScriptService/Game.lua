@@ -1,6 +1,13 @@
 --Main Game Server Script
 --Ashton
---9.20.23
+--9.20.23 -- 9.25.23
+
+--Modules--
+local classesFolder = script.Parent:WaitForChild("Classes")
+local classes = {}
+for _, obj in pairs(classesFolder:GetChildren()) do
+	classes[obj.Name] = require(obj)
+end
 
 --Objects--
 local repStorage = game:GetService("ReplicatedStorage")
@@ -15,6 +22,11 @@ local playing = {}
 
 --Constants--
 local RESULTS_TIME = 5
+
+--Send Message--
+local function sendAllMessage(message)
+	classes["TextPacket"].SendToAll(message)
+end
 
 --Spawn Map--
 local function createMap(map)
@@ -59,11 +71,13 @@ wonMapValue.Changed:Connect(function(value)
 	if value then
 		local map = createMap(value)
 		wait(RESULTS_TIME)
+		
 		if not wonMapValue.Value then
 			map:Destroy()
 			return
 		end
 		
+		sendAllMessage("Starting Game...")
 		spawnPlayers(map)
 	end
 end)

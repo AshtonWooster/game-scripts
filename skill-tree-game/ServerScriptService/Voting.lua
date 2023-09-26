@@ -1,6 +1,6 @@
 --Server Voting Script
 --Ashton
---9.13.23 -- 9.20.23
+--9.13.23 -- 9.25.23
 
 --Modules--
 local valueManip = require(script.Parent:WaitForChild("ValueManip"))
@@ -76,7 +76,7 @@ local function calculateWinners()
 	
 	local finalChosenMap = currentMaps[winningMap].Value
 	wonMapValue.Value = finalChosenMap
-	sendAllMessage("Chosen Map: "..finalChosenMap.Name)
+	sendAllMessage("Chosen Map: "..finalChosenMap.Config:WaitForChild("Name").Value)
 	
 	--local finalChosenMode = currentModes[winningMode].Value
 	--wonModeValue.Value = finalChosenMode

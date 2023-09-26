@@ -1,6 +1,6 @@
 --Client Voting Script
 --Ashton
---9.14.23 -- 9.18.23
+--9.14.23 -- 9.25.23
 
 --Objects--
 local userIS = game:GetService("UserInputService")
@@ -182,7 +182,7 @@ end
 gameState.Changed:Connect(function(value)
 	if gameState.Value == "Lobby" and votingValue.Value then
 		openVoting()
-	elseif votingValue.Value then
+	else
 		closeVoting()
 		resultsMenu.Visible = false
 	end

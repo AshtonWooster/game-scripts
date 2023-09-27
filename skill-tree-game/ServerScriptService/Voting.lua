@@ -1,6 +1,6 @@
 --Server Voting Script
 --Ashton
---9.13.23 -- 9.25.23
+--9.13.23 -- 9.26.23
 
 --Modules--
 local valueManip = require(script.Parent:WaitForChild("ValueManip"))
@@ -46,8 +46,6 @@ end
 
 --Calculate Winning Votes--
 local function calculateWinners()
-	local winningMap = 1
-	local winningMode = 1
 	local totaledVotes = {
 		Map = {0,0,0},
 		Mode = {0,0,0,0},
@@ -62,19 +60,10 @@ local function calculateWinners()
 		end
 	end
 	
-	for i, vote in pairs(totaledVotes["Map"]) do
-		if vote > totaledVotes["Map"][winningMap] then
-			winningMap = i
-		end
-	end
+	local winningMaps = valueManip.FindMaxValues(totaledVotes["Map"])
+	local winningModes = valueManip.FindMaxValues(totaledVotes["Mode"])
 	
-	for i, vote in pairs(totaledVotes["Mode"]) do
-		if vote > totaledVotes["Mode"][winningMode] then
-			winningMode = i
-		end
-	end
-	
-	local finalChosenMap = currentMaps[winningMap].Value
+	local finalChosenMap = currentMaps[winningMaps[math.random(1, #winningMaps)]].Value
 	wonMapValue.Value = finalChosenMap
 	sendAllMessage("Chosen Map: "..finalChosenMap.Config:WaitForChild("Name").Value)
 	

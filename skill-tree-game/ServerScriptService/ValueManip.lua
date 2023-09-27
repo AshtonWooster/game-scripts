@@ -1,6 +1,6 @@
 --Value Manipulators Module Server
 --Ashton
---10.1.22 -- 9.16.23
+--10.1.22 -- 9.25.23
 
 --Modules--
 local valueManip = {}
@@ -37,6 +37,26 @@ function valueManip.FindList(list, key, value)
 	end
 	
 	return nil
+end
+
+--Find max values in list--
+function valueManip.FindMaxValues(list)
+	local highest = 1
+	for i = 2, #list do
+		if list[i] > list[highest] then
+			highest = i
+		end
+	end
+	
+	--Return all max values if there is multiple--
+	local results = {}
+	for i, val in pairs(list) do
+		if val == list[highest] then
+			table.insert(results, i)
+		end
+	end
+	
+	return results
 end
 
 --Map Children Values to Hash--

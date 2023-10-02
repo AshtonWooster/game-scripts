@@ -1,6 +1,6 @@
 --Client Admin Script
 --Ashton
---9.13.22 -- 9.14.23
+--9.13.22 -- 10.1.23
 
 --Objects--
 local repStorage = game:GetService("ReplicatedStorage")
@@ -17,6 +17,7 @@ local getPos, newMove, discon
 
 --Modules--
 local mouseController = require(clientMods:WaitForChild("Mouse"))
+local guiManip = require(clientMods:WaitForChild("GuiManip"))
 
 --Constants--
 local MENU_CENTER = UDim2.fromScale(0.564, 0.333)
@@ -155,50 +156,9 @@ local function connectAll()
 		clearBoxes()
 	end)
 	
-	--Connect AdminMove--
-	adminMove.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			local newMove
-			local discon
-			local mouse = player:GetMouse()
-			local viewSize = workspace.CurrentCamera.ViewportSize
-			local offset = adminMenu.Position - UDim2.fromScale(mouse.X/viewSize.X, mouse.Y/viewSize.Y)
-			mouseController.setIcon("Move")
-			newMove = mouse.Move:Connect(function()
-				adminMenu.Position = UDim2.fromScale(mouse.X/viewSize.X, mouse.Y/viewSize.Y) + offset
-			end)
-			
-			--Disconnect on mouse lift--
-			discon = userIS.InputEnded:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.MouseButton1 then
-					mouseController.setIcon()
-					newMove:Disconnect()
-					discon:Disconnect()
-				end
-			end)
-		end
-	end)
-	
-	--Connect HelpMove--
-	helpMove.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			local mouse = player:GetMouse()
-			local viewSize = workspace.CurrentCamera.ViewportSize
-			local offset = helpMenu.Position - UDim2.fromScale(mouse.X/viewSize.X, mouse.Y/viewSize.Y)
-			mouseController.setIcon("Move")
-			newMove = mouse.Move:Connect(function()
-				helpMenu.Position = UDim2.fromScale(mouse.X/viewSize.X, mouse.Y/viewSize.Y) + offset
-			end)
-
-			--Disconnect on mouse lift--
-			discon = userIS.InputEnded:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.MouseButton1 then
-					mouseController.setIcon()
-					disconnectAll()
-				end
-			end)
-		end
-	end)
+	--Connect Move Buttons--
+	guiManip.ConnectMove(adminMove)
+	guiManip.ConnectMove(helpMove)
 	
 	--Connect Command Bar--
 	commandBar.FocusLost:Connect(function(enterPressed)

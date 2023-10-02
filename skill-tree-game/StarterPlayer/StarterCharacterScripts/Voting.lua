@@ -1,6 +1,6 @@
 --Client Voting Script
 --Ashton
---9.14.23 -- 9.25.23
+--9.14.23 -- 10.1.23
 
 --Objects--
 local userIS = game:GetService("UserInputService")
@@ -36,6 +36,7 @@ local resultsMapName = resultsMenu:WaitForChild("MapName")
 
 --Modules--
 local mouseController = require(clientMods:WaitForChild("Mouse"))
+local guiManip = require(clientMods:WaitForChild("GuiManip"))
 
 --Variables--
 local currentVotes = {
@@ -194,28 +195,7 @@ votingTime.Changed:Connect(function(value)
 end)
 
 --Connect VotingMove--
-votingMove.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		local newMove
-		local discon
-		local mouse = player:GetMouse()
-		local viewSize = workspace.CurrentCamera.ViewportSize
-		local offset = votingMenu.Position - UDim2.fromScale(mouse.X/viewSize.X, mouse.Y/viewSize.Y)
-		mouseController.setIcon("Move")
-		newMove = mouse.Move:Connect(function()
-			votingMenu.Position = UDim2.fromScale(mouse.X/viewSize.X, mouse.Y/viewSize.Y) + offset
-		end)
-
-		--Disconnect on mouse lift--
-		discon = userIS.InputEnded:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 then
-				mouseController.setIcon()
-				newMove:Disconnect()
-				discon:Disconnect()
-			end
-		end)
-	end
-end)
+guiManip.ConnectMove(votingMove)
 
 --Connect VotingClose--
 votingClose.InputEnded:Connect(function(input)

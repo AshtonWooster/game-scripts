@@ -1,6 +1,6 @@
 --Server Admin List
 --Ashton
---9.18.22 -- 9.28.22
+--9.18.22 -- 10.2.23
 
 --Objects--
 local list = {}
@@ -21,8 +21,8 @@ local function getList()
 			count = count + 1
 		end
 	end
-	
-	return adminList or {}
+
+	return adminList, success
 end
 
 --Save List--
@@ -42,9 +42,13 @@ end
 
 --Update Admin--
 function list.UpdateAdmin(player, rank)
-	local adminList = getList()
-	adminList[tostring(player.UserId)] = rank >= 0 and rank or nil
-	saveList(adminList)
+	local adminList, success = getList()
+	if success then
+		adminList[tostring(player.UserId)] = rank >= 0 and rank or nil
+		saveList(adminList)
+	else
+		print("Data failed catastrophically")
+	end
 end
 
 --Is Admin--

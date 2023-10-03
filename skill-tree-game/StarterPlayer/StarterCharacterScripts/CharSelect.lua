@@ -16,6 +16,8 @@ local templateImage = scrollFrame:WaitForChild("Template")
 local gameState = player:WaitForChild("GameState")
 local charOpen = charSelectFolder:WaitForChild("CharOpen")
 local classesFolder = repStorage:WaitForChild("Classes")
+local playerData = player:WaitForChild("PlayerData")
+local charDataFolder = playerData:WaitForChild("Characters")
 
 --Modules--
 local guiManip = require(clientMods:WaitForChild("GuiManip"))
@@ -34,14 +36,18 @@ local templateSize, xOffset, yOffset, offset do
 	for i, char in pairs(classesFolder:GetChildren()) do
 		local configFolder = char.Config
 		local image = configFolder.Image.Value
+		local name = configFolder:WaitForChild("Name").Value
 		local newImage = templateImage:Clone()
 		
 		newImage.Parent = scrollFrame
 		newImage.Image = image
 		newImage.Name = tostring(i)
 		newImage.Visible = true
+		if not charDataFolder:FindFirstChild(char.Name) then
+			newImage.ImageColor3 = Color3.fromRGB(150,150,150)
+		end
 		
-		newImage.Position = UDim2.fromScale(xOffset * (i % (NUM_CHAR_IN_ROW + 1)), yOffset * math.ceil(i / NUM_CHAR_IN_ROW) - offset/2)
+		newImage.Position = UDim2.fromScale(xOffset * ((i-1) % NUM_CHAR_IN_ROW + 1), yOffset * math.ceil(i / NUM_CHAR_IN_ROW) - offset/2)
 	end
 end
 

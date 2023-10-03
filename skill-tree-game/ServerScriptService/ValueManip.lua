@@ -1,6 +1,6 @@
 --Value Manipulators Module Server
 --Ashton
---10.1.22 -- 9.25.23
+--10.1.22 -- 10.2.23
 
 --Modules--
 local valueManip = {}
@@ -57,6 +57,17 @@ function valueManip.FindMaxValues(list)
 	end
 	
 	return results
+end
+
+--Merge Hashes, hash2 into hash1--
+function valueManip.MergeHashes(hash1, hash2)
+	local newHash = hash1 or {}
+	for key, value in pairs(hash2) do
+		if newHash[key] == nil then
+			newHash[key] = value
+		end
+	end
+	return newHash
 end
 
 --Map Children Values to Hash--

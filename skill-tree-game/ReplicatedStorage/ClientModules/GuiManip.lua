@@ -8,7 +8,11 @@ local mouseController = require(script.Parent:WaitForChild("Mouse"))
 --Objects--
 local guiManip = {}
 local userIS = game:GetService("UserInputService")
+local tweenService = game:GetService("TweenService")
 local player = game.Players.LocalPlayer
+
+--Variables--
+local hoverInfo = TweenInfo.new(0.2, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out)
 
 --Hide all children--
 function guiManip.HideAll(folder)
@@ -42,6 +46,28 @@ function guiManip.ConnectMove(button)
 			end)
 		end
 	end)
+end
+
+--Hover Effect--
+function guiManip.Hover(object, size)
+	size = size or 1.1
+
+	local preSize = object.size
+	local postSize = object.size * size
+	local outTween = tweenService:Create(object, hoverInfo, {Size = postSize})
+	local inTween = tweenService:Create(object, hoverInfo, {Size = preSize})
+
+	local enterEvent = object.MouseEnter:Connect(function()
+		inTween:Stop()
+		outTween:Play()
+	end)
+
+	local exitEvent = object.MouseLeave:Connect(function()
+		outTween:Stop()
+		inTween:Play()
+	end)
+
+	return enterEvent, exitEvent
 end
 
 return guiManip

@@ -23,6 +23,9 @@ local charDataFolder = playerData:WaitForChild("Characters")
 local guiManip = require(clientMods:WaitForChild("GuiManip"))
 local mouseController = require(clientMods:WaitForChild("Mouse"))
 
+--Variables--
+local hoverEvents = {}
+
 --Constants--
 local NUM_CHAR_IN_ROW = 5
 
@@ -51,19 +54,39 @@ local templateSize, xOffset, yOffset, offset do
 	end
 end
 
+--Show/Hide Menu--
+local function toggleMenu(vis)
+	charMenu.Visible = vis
+
+	if vis then
+		for _, button in pairs(scrollFrame:GetChildren()) do
+			local enter, exit = guiManip.Hover(button)
+			table.insert(hoverEvents, enter)
+			table.insert(hoverEvents, exit)
+		end
+	else
+		for i, hoverEvent in ipairs(hoverEvents) do
+			hoverEvent:Disconnect()
+			hoverEvent:Destroy()
+			table.remove(hoverEvents, i)
+		end
+	end
+end
+
 --Hide/Show Char Select Menu--
 gameState.Changed:Connect(function(value)
 	if value == "Lobby" then
 		charOpen.Visible = true
 	else
 		guiManip.HideAll(charSelectFolder)
+		toggleMenu(false)
 	end
 end)
 
 --Close Menu--
 charClose.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		charMenu.Visible = false
+		toggleMenu(false)
 		mouseController.click()
 	end
 end)
@@ -71,7 +94,7 @@ end)
 --Open Menu--
 charOpen.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		charMenu.Visible = not charMenu.Visible
+		toggleMenu(not charMenu.Visible)
 		mouseController.click()
 	end
 end)
